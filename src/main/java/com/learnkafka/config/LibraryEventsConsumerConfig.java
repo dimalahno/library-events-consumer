@@ -5,6 +5,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -12,18 +13,34 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.List;
+
 @Configuration
 @EnableKafka
 @Slf4j
 public class LibraryEventsConsumerConfig {
 
     public DefaultErrorHandler errorHandler() {
+
+        var exceptionsToIgnoreList = List.of(
+            IllegalArgumentException.class
+        );
+
+        var exceptionsToRetryList = List.of(
+            RecoverableDataAccessException.class
+        );
+
         var fixedBackOff = new FixedBackOff(1000L, 2);
-        var defaultErrorHandler = new DefaultErrorHandler(fixedBackOff);
-        defaultErrorHandler.setRetryListeners(((record, ex, deliveryAttempt) -> {
+        var errorHandler = new DefaultErrorHandler(fixedBackOff);
+
+        errorHandler.setRetryListeners(((record, ex, deliveryAttempt) -> {
             log.info("Failed Record in Retry Listener Exception : {} deliveryAttempt {} ", ex.getMessage(), deliveryAttempt);
         }));
-        return defaultErrorHandler;
+
+        exceptionsToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
+        exceptionsToRetryList.forEach(errorHandler::addRetryableExceptions);
+
+        return errorHandler;
     }
 
     @Bean
