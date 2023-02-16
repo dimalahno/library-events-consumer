@@ -1,6 +1,5 @@
 package com.learnkafka.scheduler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.learnkafka.config.LibraryEventsConsumerConfig;
 import com.learnkafka.entity.FailureRecord;
 import com.learnkafka.jpa.FailureRecordRepository;
