@@ -28,8 +28,9 @@ import java.util.List;
 @Slf4j
 public class LibraryEventsConsumerConfig {
 
-    private final static String RETRY = "RETRY";
-    private final static String DEAD = "DEAD";
+    public final static String RETRY = "RETRY";
+    public final static String DEAD = "DEAD";
+    public static final String SUCCESS = "SUCCESS";
 
     @Autowired
     KafkaTemplate kafkaTemplate;
