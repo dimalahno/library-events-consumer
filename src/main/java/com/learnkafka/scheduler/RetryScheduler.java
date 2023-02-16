@@ -27,6 +27,7 @@ public class RetryScheduler {
                     try {
                         libraryEventsService.processLibraryEvent(consumerRecord);
                         failureRecord.setStatus(LibraryEventsConsumerConfig.SUCCESS);
+                        failureRecordRepository.save(failureRecord);
                     } catch (Exception e) {
                         log.error("Exception  in retryFailedRecords : {}", e.getMessage(), e);
                     }
