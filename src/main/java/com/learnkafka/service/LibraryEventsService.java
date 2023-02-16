@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -25,11 +26,13 @@ public class LibraryEventsService {
         LibraryEvent libraryEvent = mapper.readValue(consumerRecord.value(), LibraryEvent.class);
         log.info("libraryEvent: {}", libraryEvent);
 
-        if (libraryEvent != null && libraryEvent.getLibraryEventId() == 999) {
+        if (libraryEvent != null &&
+                Objects.nonNull(libraryEvent.getLibraryEventId()) &&
+                libraryEvent.getLibraryEventId() == 999) {
             throw new RecoverableDataAccessException("Temporary Network Issue");
         }
 
-        switch (libraryEvent.getType()) {
+        switch (Objects.requireNonNull(libraryEvent).getType()) {
             case NEW -> save(libraryEvent);
             case UPDATE -> update(libraryEvent);
         }
