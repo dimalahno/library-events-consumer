@@ -48,7 +48,7 @@ public class LibraryEventsConsumerConfig {
                         return new TopicPartition(deadLetterTopic, r.partition());
                     }
                 });
-        CommonErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(0L, 2L));
+//        CommonErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(0L, 2L));
         return recoverer;
     }
 
@@ -80,7 +80,7 @@ public class LibraryEventsConsumerConfig {
         }));
 
         exceptionsToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
-        exceptionsToRetryList.forEach(errorHandler::addRetryableExceptions);
+//        exceptionsToRetryList.forEach(errorHandler::addRetryableExceptions);
 
         return errorHandler;
     }
