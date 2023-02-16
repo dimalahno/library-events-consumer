@@ -166,10 +166,17 @@ public class LibraryConsumerIntegrationTest {
         //then
         verify(libraryEventsConsumerSpy, times(3)).onMessage(isA(ConsumerRecord.class));
         verify(libraryEventsServiceSpy, times(3)).processLibraryEvent(isA(ConsumerRecord.class));
+
+        Map<String,Object> configs = new HashMap<>(KafkaTestUtils.consumerProps("group2", "true", embeddedKafkaBroker));
+        consumer = new DefaultKafkaConsumerFactory<>(configs, new IntegerDeserializer(), new StringDeserializer()).createConsumer();
+        embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, deadLetterTopic);
+
+        ConsumerRecord<Integer, String> consumerRecord =  KafkaTestUtils.getSingleRecord(consumer, deadLetterTopic);
+        System.out.println("consumerRecord is : "+ consumerRecord.value());
+        assertEquals(json, consumerRecord.value());
     }
 
     @Test
-    @Disabled
     void publishUpdateLibraryEvent_999_LibraryEvent() throws JsonProcessingException, ExecutionException, InterruptedException {
 
         //given
@@ -188,7 +195,7 @@ public class LibraryConsumerIntegrationTest {
         consumer = new DefaultKafkaConsumerFactory<>(configs, new IntegerDeserializer(), new StringDeserializer()).createConsumer();
         embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, retryTopic);
 
-        ConsumerRecord<Integer, String> consumerRecord =  KafkaTestUtils.getSingleRecord(consumer,"library-events");
+        ConsumerRecord<Integer, String> consumerRecord =  KafkaTestUtils.getSingleRecord(consumer, retryTopic);
         System.out.println("consumerRecord is : "+ consumerRecord.value());
         assertEquals(json, consumerRecord.value());
     }
